@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import {
+  ClerkProvider,
+} from '@clerk/nextjs'
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -24,6 +28,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
+    <ClerkProvider>
     <html lang="ja" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-screen bg-background font-sans antialiased">
         <main className="relative flex min-h-screen flex-col">
@@ -31,5 +36,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
         </main>
       </body>
     </html>
+    </ClerkProvider>
   );
 }

@@ -3,21 +3,17 @@
 import Link from 'next/link';
 import { HomeIcon, MagnifyingGlassIcon, ArrowPathIcon, BellIcon, EnvelopeIcon, UserIcon, BookmarkIcon, ListBulletIcon, Cog6ToothIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { HomeIcon as HomeIconSolid, MagnifyingGlassIcon as MagnifyingGlassIconSolid, BellIcon as BellIconSolid, EnvelopeIcon as EnvelopeIconSolid, UserIcon as UserIconSolid } from '@heroicons/react/24/solid';
+import { useUser } from '@clerk/nextjs';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { ProfileLink } from '../profile/profile-link';
 import { UserInfo } from './user-info';
+import { UserButton } from '../auth/user-button';
 
 export function LeftSidebar() {
   const pathname = usePathname();
-  
-  // ダミーユーザー情報
-  const currentUser = {
-    name: 'ユーザー名',
-    username: 'username',
-    avatarSeed: 'user1'
-  };
+  const { user, isSignedIn } = useUser();
 
   const mobileMenuItems = [
     { href: '/', icon: HomeIcon, activeIcon: HomeIconSolid, label: 'ホーム' },
@@ -73,9 +69,16 @@ export function LeftSidebar() {
             </Button>
           </div>
           <div className="mt-auto px-4">
-            <button className="w-full p-4 rounded-full hover:bg-gray-100 transition-colors">
-              <UserInfo />
-            </button>
+            {isSignedIn ? (
+              <div className="flex items-center justify-between p-4 rounded-full hover:bg-gray-100 transition-colors">
+                <UserInfo />
+                <UserButton />
+              </div>
+            ) : (
+              <div className="p-4">
+                <UserButton />
+              </div>
+            )}
           </div>
         </div>
       </aside>
