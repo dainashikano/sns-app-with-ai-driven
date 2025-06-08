@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { LeftSidebar } from "./left-sidebar";
 import { RightSidebar } from "./right-sidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { UserInfo } from "./user-info";
+import { UserButton } from "../auth/user-button";
 import { 
   Users2Icon, 
   ListIcon, 
@@ -27,35 +29,18 @@ import {
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const pathname = usePathname();
+  const { user, isLoaded } = useUser();
   
-  // プロフィールページの判定は削除（動的ルーティングのため）
+  // プロフィールページの判定
   const isProfilePage = pathname.startsWith('/profile/');
-
-  // 現在のユーザーIDを取得
-  useEffect(() => {
-    const fetchCurrentUserId = async () => {
-      try {
-        const response = await fetch('/api/auth/current-user');
-        if (response.ok) {
-          const data = await response.json();
-          setCurrentUserId(data.userId);
-        }
-      } catch (error) {
-        console.error('ユーザーIDの取得に失敗しました:', error);
-      }
-    };
-
-    fetchCurrentUserId();
-  }, []);
 
   const menuItems = [
     { 
       icon: UserIcon, 
       label: 'プロフィール', 
-      href: currentUserId ? `/profile/${currentUserId}` : '/profile',
-      disabled: !currentUserId
+      href: user ? `/profile/${user.id}` : '/profile',
+      disabled: !user
     },
     { icon: BadgeIcon, label: 'プレミアム', href: '/premium' },
     { icon: Users2Icon, label: 'コミュニティ', href: '/communities' },
@@ -86,9 +71,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 >
                   <UserInfo />
                 </button>
-                <Button variant="outline" size="sm" className="rounded-full font-bold">
-                  プレミアム
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="rounded-full font-bold">
+                    プレミアム
+                  </Button>
+                  <UserButton />
+                </div>
               </div>
               {/* スライドアウトメニュー */}
               {isMenuOpen && (
@@ -164,8 +152,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </div>
             {/* デスクトップヘッダー */}
             <div className="hidden md:block sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-gray-200">
-              <div className="px-4 py-3">
+              <div className="px-4 py-3 flex items-center justify-between">
                 <h1 className="text-xl font-bold">ホーム</h1>
+                <UserButton />
               </div>
             </div>
           </header>
