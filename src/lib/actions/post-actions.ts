@@ -22,17 +22,13 @@ export async function createPost(content: string) {
 }
 
 export async function togglePostLike(postId: string) {
-  // TODO: 実際の認証システムを実装したら、セッションからユーザーIDを取得
-  const user = await prisma.user.findFirst();
-  
-  if (!user) {
-    throw new Error('ユーザーが見つかりません');
-  }
+  // Clerk認証でユーザーIDを取得
+  const userId = await requireAuth();
 
   const existingLike = await prisma.like.findUnique({
     where: {
       userId_postId: {
-        userId: user.id,
+        userId,
         postId,
       },
     },
@@ -58,7 +54,7 @@ export async function togglePostLike(postId: string) {
     // いいねを追加
     await prisma.like.create({
       data: {
-        userId: user.id,
+        userId,
         postId,
       },
     });
